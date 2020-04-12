@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> WASM </title>
+</head>
+<body>
+<script src="a.out.js"></script>
+<script>
+Module['onRuntimeInitialized'] = function() {
+console.log("loaded")
+x=[1,2,3]
+const myArray = new Uint8Array(x);
+const buffer = Module._malloc(myArray.length);
+Module.HEAPU8.set(myArray, buffer);
+result = Module.ccall("array_square", "number", ["number","number"], [buffer, myArray.length])
+console.log(Module.HEAPU8.subarray(buffer, buffer+myArray.length));
+const arrayData = []
+for (let v=0; v<myArray.length; v++) {
+    arrayData.push(Module.HEAPU8[result/Uint8Array.BYTES_PER_ELEMENT+v])
+}
+console.log(arrayData)
+Module._free(buffer)   
+}
+
+</script>
+
+</body>
+</html>
